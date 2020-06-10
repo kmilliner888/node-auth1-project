@@ -22,6 +22,7 @@ router.post('/login', async (req, res) => {
     try {
         const user = await Users.findBy({username}).first();
         if (user && bcrypt.compareSync(password, user.password)) {
+            req.session.user = user;
             res.status(200).json({message: `Welcome ${username}!`});
         } else {
             res.status(400).json({message: 'invalid credentials'});
@@ -30,6 +31,20 @@ router.post('/login', async (req, res) => {
         console.log(error);
         res.status(500).json(error);
     }
-})
+});
+
+router.get('/logout', (req, res) => {
+    if (req.session) {
+        req.session.destroy( error => {
+            if (error) {
+                res.send('sorry');
+            } else {
+                res.send('see ya');
+            }
+        })
+    } else {
+        res.end();
+    }
+});
 
 module.exports = router;
